@@ -2,6 +2,8 @@
 
 Progressive Web App (PWA) zur mobilen Nachbestellung von Fahrzeug-Material. Ein Monteur tippt auf der Baustelle leeres Material im Katalog an (oder trägt einen Freitext-Posten ein), sammelt die Posten in einem Korb und erzeugt daraus eine Nachbestell-Mail mit ZIP-Anhang. Läuft komplett im Browser, funktioniert offline und kann auf dem Smartphone wie eine native App installiert werden.
 
+**App starten / installieren:** [https://e1felixr.github.io/material-app/](https://e1felixr.github.io/material-app/) _(aktiv, sobald das Repo `material-app` deployt und GitHub Pages aktiviert ist)_
+
 **aktuelle Version:** v0.1.0
 
 ## Installation auf dem Smartphone
