@@ -218,7 +218,17 @@ const Exporter = (() => {
     }
     lines.push('Liste und Fotos als ZIP anbei — bitte manuell anhängen.');
 
-    const body = lines.join('\n');
+    let body = lines.join('\n');
+    const MAX_BODY_LEN = 1500;
+    if (body.length > MAX_BODY_LEN) {
+      // Lange Postenlisten sprengen manche mailto-Limits (v.a. iOS Mail) — Kurzfassung statt Kappen mitten im Text.
+      body = [
+        `Monteur: ${monteur || ''}`,
+        `Datum: ${datum}`,
+        '',
+        `${list.length} Posten — vollständige Liste + Fotos im ZIP-Anhang.`,
+      ].join('\n');
+    }
     const to = (empfaengerMails || []).join(',');
     return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   }

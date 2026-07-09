@@ -37,11 +37,24 @@ const Catalog = (() => {
 
   async function load() {
     const cached = localStorage.getItem(KEY);
-    if (cached) return JSON.parse(cached);
-    const buf = await fetch('data/MatCombo.xlsx').then(r => r.arrayBuffer());
-    const items = parseWorkbook(buf);
-    save(items);
-    return items;
+    if (cached) {
+      try {
+        return JSON.parse(cached);
+      } catch (e) {
+        console.warn('e1mat_catalog ist beschaedigt, falle auf Bundle-Katalog zurueck:', e);
+        localStorage.removeItem(KEY);
+      }
+    }
+    try {
+      const buf = await fetch('data/MatCombo.xlsx').then(r => r.arrayBuffer());
+      const items = parseWorkbook(buf);
+      save(items);
+      return items;
+    } catch (e) {
+      console.error('Materialkatalog (Bundle) konnte nicht geladen werden:', e);
+      if (typeof showToast === 'function') showToast('Materialkatalog konnte nicht geladen werden.');
+      return [];
+    }
   }
 
   function groupByKategorie(items) {
@@ -63,7 +76,7 @@ const Catalog = (() => {
     if (typeof Basket !== 'undefined' && typeof Basket.addFromItem === 'function') {
       Basket.addFromItem(item);
     } else {
-      showToast('Korb folgt in Kuerze');
+      showToast('Korb folgt in Kürze');
     }
   }
 
@@ -129,10 +142,24 @@ const Catalog = (() => {
     wireAddButtons(listEl, items);
   }
 
-  function renderFlatList(listEl, results, allItems) {
+  function renderFlatList(listEl, results, allItems, query) {
     _currentItems = allItems;
     if (results.length === 0) {
-      listEl.innerHTML = '<div class="empty-state"><div class="icon">&#128269;</div><p>Keine Treffer.</p></div>';
+      const q = escapeHtml(query || '');
+      listEl.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">&#128269;</div>
+          <p>Keine Treffer.</p>
+          <button class="btn btn-outline btn-sm" id="btn-freitext-from-search" type="button">+ „${q}“ als Freitext erfassen</button>
+        </div>`;
+      const btn = listEl.querySelector('#btn-freitext-from-search');
+      if (btn) {
+        btn.addEventListener('click', () => {
+          if (typeof Basket !== 'undefined' && typeof Basket.addFreitext === 'function') {
+            Basket.addFreitext({ material: query || '' });
+          }
+        });
+      }
       return;
     }
     const indexByItem = new Map();
@@ -160,40 +187,25 @@ const Catalog = (() => {
   async function renderInto(containerEl) {
     const items = await load();
     containerEl.innerHTML = `
-      <div class="filter-bar" style="position:relative;">
+      <div class="filter-bar">
         <input type="text" id="katalog-search" placeholder="Material oder Type suchen..." autocomplete="off">
       </div>
-      <div id="katalog-suggestions" class="card" style="display:none; position:relative; z-index:10; padding:4px;"></div>
       <div id="katalog-list"></div>
     `;
 
     const searchInput = containerEl.querySelector('#katalog-search');
-    const suggestionsEl = containerEl.querySelector('#katalog-suggestions');
     const listEl = containerEl.querySelector('#katalog-list');
 
     renderGroupedList(listEl, items);
 
+    // Live-gefilterte Kartenliste — keine zusaetzliche Vorschlags-Ueberlagerung
+    // (nur eine Trefferliste, filtert ab dem ersten Zeichen).
     searchInput.addEventListener('input', () => {
       const q = searchInput.value.trim();
-
-      if (q.length >= 2) {
-        renderSuggestions(searchInput, suggestionsEl, items);
-      } else {
-        suggestionsEl.style.display = 'none';
-        suggestionsEl.innerHTML = '';
-      }
-
       if (!q) {
         renderGroupedList(listEl, items);
       } else {
-        renderFlatList(listEl, search(q, items), items);
-      }
-    });
-
-    // Vorschlagsliste bei Klick ausserhalb schliessen
-    document.addEventListener('click', (e) => {
-      if (!suggestionsEl.contains(e.target) && e.target !== searchInput) {
-        suggestionsEl.style.display = 'none';
+        renderFlatList(listEl, search(q, items), items, q);
       }
     });
   }
@@ -228,48 +240,6 @@ const Catalog = (() => {
     return scored.map(s => s.it);
   }
 
-  function renderSuggestions(inputEl, resultEl, items) {
-    const q = inputEl.value.trim();
-    if (q.length < 2) {
-      resultEl.style.display = 'none';
-      resultEl.innerHTML = '';
-      return;
-    }
-    const results = search(q, items).slice(0, 12);
-    if (results.length === 0) {
-      resultEl.style.display = 'none';
-      resultEl.innerHTML = '';
-      return;
-    }
-    resultEl.innerHTML = results.map((it, i) => `
-      <div class="suggestion-row" data-sug-idx="${i}" style="padding:8px 10px; cursor:pointer; border-bottom:1px solid var(--border);">
-        <strong>${escapeHtml(it.material)}</strong>${it.type ? ' &middot; ' + escapeHtml(it.type) : ''}
-      </div>`).join('');
-    resultEl.style.display = 'block';
-
-    resultEl.querySelectorAll('.suggestion-row').forEach((row, i) => {
-      row.addEventListener('click', () => {
-        const item = results[i];
-        inputEl.value = item.material;
-        resultEl.style.display = 'none';
-        resultEl.innerHTML = '';
-        // Kategorie aufklappen und zum Treffer scrollen (statt eigenem Korb-Dialog
-        // direkt aus dem Vorschlag — der "+ In Korb"-Button bleibt der einzige Weg,
-        // Mengen/Notiz bewusst zu bestaetigen).
-        _openCategories.add(item.kategorie);
-        const listEl = document.getElementById('katalog-list');
-        if (listEl) {
-          renderGroupedList(listEl, items);
-          const rowEl = listEl.querySelector(`details[data-kategorie="${CSS.escape(item.kategorie)}"]`);
-          if (rowEl) {
-            rowEl.open = true;
-            rowEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }
-      });
-    });
-  }
-
   // ── B4: Import + Vorlage-Download ───────────────────────────────────────
 
   async function importFromFile(file) {
@@ -285,12 +255,12 @@ const Catalog = (() => {
     try {
       items = parseWorkbook(buf);
     } catch (e) {
-      showToast('Struktur passt nicht — Kopfzeile in Zeile 3, Spalte "Material" noetig.');
+      showToast('Struktur passt nicht — Kopfzeile in Zeile 3, Spalte "Material" nötig.');
       return { count: 0 };
     }
 
     if (items.length === 0) {
-      showToast('Struktur passt nicht — Kopfzeile in Zeile 3, Spalte "Material" noetig.');
+      showToast('Struktur passt nicht — Kopfzeile in Zeile 3, Spalte "Material" nötig.');
       return { count: 0 };
     }
 
@@ -349,7 +319,6 @@ const Catalog = (() => {
     groupByKategorie,
     renderInto,
     search,
-    renderSuggestions,
     importFromFile,
     downloadTemplate,
     initSettingsUI,

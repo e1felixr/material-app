@@ -12,6 +12,7 @@ const ASSETS = [
   './manifest.json',
   './lib/xlsx.mini.min.js',
   './data/MatCombo.xlsx',
+  './hilfe/index.html',
   './icons/icon-192.png',
   './icons/icon-512.png'
 ];
@@ -46,7 +47,7 @@ self.addEventListener('message', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.url.includes('version.json')) {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request) || new Response('', { status: 404 }))
+      fetch(event.request).catch(async () => (await caches.match(event.request)) || new Response('', { status: 404 }))
     );
     return;
   }

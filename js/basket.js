@@ -26,6 +26,31 @@ const Basket = (() => {
     return _mode === 'freitext-add' || (_mode === 'edit' && _draftPosten && _draftPosten.quelle === 'freitext');
   }
 
+  // Skaliert ein aufgenommenes Foto vor dem Speichern auf max. 1600px Kantenlaenge
+  // herunter und exportiert es als JPEG (~0.8 Qualitaet), damit ZIP/Mailanhang
+  // klein bleiben. Ist das Bild schon kleiner, bleibt es unveraendert.
+  function downscaleImage(file) {
+    const MAX_DIM = 1600;
+    return new Promise((resolve) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onerror = () => { URL.revokeObjectURL(url); resolve(file); }; // Fallback: Original behalten
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let w = img.width, h = img.height;
+        if (w <= MAX_DIM && h <= MAX_DIM) { resolve(file); return; }
+        if (w > h) { h = Math.round(h * MAX_DIM / w); w = MAX_DIM; }
+        else { w = Math.round(w * MAX_DIM / h); h = MAX_DIM; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        canvas.toBlob((blob) => resolve(blob || file), 'image/jpeg', 0.8);
+      };
+      img.src = url;
+    });
+  }
+
   function renderPhotoSlot() {
     const slot = el('posten-photo-slot');
     if (!slot) return;
@@ -78,6 +103,13 @@ const Basket = (() => {
     el('posten-input-menge').value = _draftPosten.nachbestell_menge ?? (_draftPosten.menge_num ?? 1);
     el('posten-input-notiz').value = _draftPosten.notiz || '';
 
+    const mengeLabel = el('posten-menge-label');
+    if (mengeLabel) {
+      mengeLabel.textContent = _draftPosten.menge_soll
+        ? `Nachbestell-Menge (Soll: ${_draftPosten.menge_soll})`
+        : 'Nachbestell-Menge';
+    }
+
     renderPhotoSlot();
 
     const modal = el('modal-posten');
@@ -98,7 +130,7 @@ const Basket = (() => {
     const mengeInput = Number(el('posten-input-menge').value);
     const notiz = el('posten-input-notiz').value.trim();
 
-    let material, type, kategorie, position, bemerkung_katalog;
+    let material, type, kategorie, position, bemerkung_katalog, menge_soll;
 
     if (isFreitextContext()) {
       material = el('posten-input-material').value.trim();
@@ -110,12 +142,14 @@ const Basket = (() => {
       kategorie = el('posten-input-kategorie').value.trim() || 'Sonstiges';
       position = _draftPosten.position || '';
       bemerkung_katalog = _draftPosten.bemerkung_katalog || '';
+      menge_soll = _draftPosten.menge_soll;
     } else {
       material = _draftPosten.material;
       type = _draftPosten.type;
       kategorie = _draftPosten.kategorie;
       position = _draftPosten.position;
       bemerkung_katalog = _draftPosten.bemerkung_katalog;
+      menge_soll = _draftPosten.menge_soll;
     }
 
     const nachbestell_menge = Number.isFinite(mengeInput) && mengeInput > 0
@@ -125,7 +159,7 @@ const Basket = (() => {
     if (_mode === 'edit') {
       const posten = {
         ..._draftPosten,
-        material, type, kategorie, position, bemerkung_katalog,
+        material, type, kategorie, position, bemerkung_katalog, menge_soll,
         nachbestell_menge, notiz,
       };
       if (_photoBlob) posten.foto_blob = _photoBlob; else delete posten.foto_blob;
@@ -140,7 +174,7 @@ const Basket = (() => {
     const posten = {
       id: crypto.randomUUID(),
       quelle: _mode === 'freitext-add' ? 'freitext' : 'katalog',
-      kategorie, position, material, type, bemerkung_katalog,
+      kategorie, position, material, type, bemerkung_katalog, menge_soll,
       nachbestell_menge, notiz,
       erfasst_am: new Date().toISOString(),
     };
@@ -157,11 +191,11 @@ const Basket = (() => {
     const input = el('posten-photo-input');
     if (input && !input.dataset.wired) {
       input.dataset.wired = '1';
-      input.addEventListener('change', () => {
+      input.addEventListener('change', async () => {
         const file = input.files && input.files[0];
         input.value = ''; // erneute Auswahl derselben Datei erlauben
         if (!file) return;
-        _photoBlob = file;
+        _photoBlob = await downscaleImage(file);
         renderPhotoSlot();
       });
     }
@@ -187,6 +221,7 @@ const Basket = (() => {
         type: item.type,
         bemerkung_katalog: item.bemerkung,
         menge_num: item.menge_num,
+        menge_soll: item.menge_soll,
         nachbestell_menge: item.menge_num ?? 1,
       },
     });
@@ -194,11 +229,13 @@ const Basket = (() => {
 
   // ── C3: Freitext-Posten ───────────────────────────────────────────────
 
-  function addFreitext() {
+  function addFreitext(prefill) {
+    const posten = { kategorie: 'Sonstiges', nachbestell_menge: 1 };
+    if (prefill && prefill.material) posten.material = prefill.material;
     openDialog({
       mode: 'freitext-add',
       title: 'Freitext-Posten',
-      posten: { kategorie: 'Sonstiges', nachbestell_menge: 1 },
+      posten,
     });
   }
 
@@ -378,13 +415,19 @@ const Basket = (() => {
 
     const monteur = (typeof Settings !== 'undefined') ? Settings.getMonteur() : '';
 
-    const zipBlob = await Exporter.buildZip(posten, monteur);
-    const zipFileName = 'Nachbestellung_' + Exporter.sanitizeFilename(monteur || 'E1Material') + '.zip';
-    Exporter.downloadBlob(zipBlob, zipFileName);
+    try {
+      const zipBlob = await Exporter.buildZip(posten, monteur);
+      const zipFileName = 'Nachbestellung_' + Exporter.sanitizeFilename(monteur || 'E1Material') + '.zip';
+      Exporter.downloadBlob(zipBlob, zipFileName);
 
-    const mailto = Exporter.buildMailto(posten, monteur, mails);
-    showToast('ZIP heruntergeladen — bitte manuell anhängen.');
-    setTimeout(() => { window.location.href = mailto; }, 400);
+      const mailto = Exporter.buildMailto(posten, monteur, mails);
+      showToast('ZIP heruntergeladen — bitte manuell anhängen.');
+      setTimeout(() => { window.location.href = mailto; }, 400);
+    } catch (e) {
+      console.error('Versand fehlgeschlagen:', e);
+      showToast('Versand fehlgeschlagen — bitte erneut versuchen');
+      return;
+    }
 
     closeSendDialog();
 
