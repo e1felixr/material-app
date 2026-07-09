@@ -37,7 +37,19 @@
 
 <!-- ════════ VIEW: Einstellungen ════════ -->
 <div class="screen" id="view-einstellungen" data-view="einstellungen">
-  <p class="hint">Einstellungen — wird in Block D befuellt.</p>
+
+  <!-- Block B: Materialkatalog-Verwaltung. Block D ergaenzt hier weitere
+       .settings-group-Bloecke (Monteur-Name, Empfaengerliste). -->
+  <div class="settings-group" id="settings-katalog">
+    <label>Materialkatalog</label>
+    <div class="action-bar">
+      <button class="btn btn-outline btn-sm" id="btn-katalog-vorlage" type="button">Vorlage herunterladen</button>
+      <label class="btn btn-primary btn-sm" for="input-katalog-import" style="cursor:pointer;">Materialliste importieren</label>
+      <input type="file" id="input-katalog-import" accept=".xlsx" style="display:none">
+    </div>
+    <p class="hint">Import ersetzt den kompletten Katalog. Kopfzeile muss in Excel-Zeile 3 stehen (Spalten: Kategorie, Fach, Material, Type, Menge, Bemerkung).</p>
+  </div>
+
 </div>
 
 <!-- ════════ NAVIGATION (Tab-Leiste) ════════ -->
