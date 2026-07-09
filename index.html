@@ -50,6 +50,25 @@
     <p class="hint">Import ersetzt den kompletten Katalog. Kopfzeile muss in Excel-Zeile 3 stehen (Spalten: Kategorie, Fach, Material, Type, Menge, Bemerkung).</p>
   </div>
 
+  <!-- Block D: Monteur-Name -->
+  <div class="settings-group" id="settings-monteur">
+    <label for="input-monteur-name">Dein Name (Monteur)</label>
+    <input type="text" id="input-monteur-name" placeholder="Vor- und Nachname" autocomplete="name">
+    <button class="btn btn-primary btn-sm" id="btn-monteur-save" type="button" style="margin-top:8px;">Speichern</button>
+  </div>
+
+  <!-- Block D: Empfaengerliste -->
+  <div class="settings-group" id="settings-empfaenger">
+    <label>Empfänger für Nachbestellung</label>
+    <div id="empfaenger-list"></div>
+    <div class="form-row" style="margin-top:8px;">
+      <input type="text" id="input-empfaenger-name" placeholder="Name" autocomplete="off">
+      <input type="email" id="input-empfaenger-mail" placeholder="E-Mail-Adresse" autocomplete="off">
+    </div>
+    <button class="btn btn-outline btn-sm" id="btn-empfaenger-add" type="button" style="margin-top:8px;">+ Empfänger hinzufügen</button>
+    <p class="hint">Diese Adressen stehen beim Versand der Nachbestellung zur Auswahl.</p>
+  </div>
+
 </div>
 
 <!-- ════════ NAVIGATION (Tab-Leiste) ════════ -->
@@ -111,6 +130,34 @@
 
     <button class="btn btn-primary" id="posten-modal-save" type="button">Speichern</button>
     <button class="btn btn-outline" type="button" onclick="Basket.closeDialog()">Abbrechen</button>
+  </div>
+</div>
+
+<!-- ════════ Modal: Erststart — Monteur-Name (Pflicht) ════════ -->
+<div class="modal-overlay" id="modal-erststart" style="display:none">
+  <div class="modal">
+    <h2>Willkommen bei E1 Material</h2>
+    <p style="font-size:.85rem;color:var(--text-sec);margin-bottom:12px">Bitte gib deinen Namen ein, bevor du startest.</p>
+    <div class="form-group">
+      <label>Dein Name *</label>
+      <input type="text" id="erststart-input-name" placeholder="Vor- und Nachname" autocomplete="name">
+    </div>
+    <button class="btn btn-primary" id="erststart-save" type="button">Speichern</button>
+  </div>
+</div>
+
+<!-- ════════ Modal: Nachbestellung senden (Block D3) ════════ -->
+<div class="modal-overlay" id="modal-send-nachbestellung" style="display:none" onclick="if(event.target===this) Basket.closeSendDialog()">
+  <div class="modal">
+    <h2>Nachbestellung senden</h2>
+    <p style="font-size:.85rem;color:var(--text-sec);margin-bottom:12px">ZIP wird heruntergeladen. Danach öffnet sich das Mailprogramm — bitte die ZIP-Datei manuell anhängen.</p>
+    <div class="send-recipients" id="send-empfaenger-list"></div>
+    <div class="form-group" style="margin-top:12px;">
+      <label>Zusätzliche Adresse</label>
+      <input type="email" id="send-extra-mail" placeholder="optional">
+    </div>
+    <button class="btn btn-primary" id="btn-send-confirm" type="button">Senden</button>
+    <button class="btn btn-outline" type="button" onclick="Basket.closeSendDialog()">Abbrechen</button>
   </div>
 </div>
 

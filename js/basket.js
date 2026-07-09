@@ -271,6 +271,7 @@ const Basket = (() => {
     const header = `
       <div class="action-bar" style="margin-bottom:10px;">
         <button class="btn btn-outline btn-sm" id="btn-freitext-posten" type="button">+ Freitext-Posten</button>
+        <button class="btn btn-primary btn-sm" id="btn-send-nachbestellung" type="button" ${posten.length === 0 ? 'disabled' : ''}>Nachbestellung senden</button>
       </div>`;
 
     if (posten.length === 0) {
@@ -291,6 +292,9 @@ const Basket = (() => {
 
     const btnFreitext = containerEl.querySelector('#btn-freitext-posten');
     if (btnFreitext) btnFreitext.addEventListener('click', () => addFreitext());
+
+    const btnSend = containerEl.querySelector('#btn-send-nachbestellung');
+    if (btnSend) btnSend.addEventListener('click', () => openSendDialog());
 
     containerEl.querySelectorAll('.btn-posten-edit').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -318,5 +322,93 @@ const Basket = (() => {
   // Badge beim App-Start aktualisieren (Persistenz ueber Reload hinweg).
   document.addEventListener('DOMContentLoaded', () => { refreshBadge(); });
 
-  return { addFromItem, addFreitext, renderInto, refreshBadge, closeDialog };
+  // ── D3: Versand-Flow (Empfaenger ankreuzen, senden, Korb leeren) ─────
+
+  function openSendDialog() {
+    const listEl = el('send-empfaenger-list');
+    const empfaenger = (typeof Settings !== 'undefined') ? Settings.getEmpfaenger() : [];
+    if (listEl) {
+      if (empfaenger.length === 0) {
+        listEl.innerHTML = '<p class="hint">Keine Empfänger hinterlegt — unter Einstellungen anlegen, oder unten eine Adresse eintragen.</p>';
+      } else {
+        listEl.innerHTML = empfaenger.map((e, i) => `
+          <label class="send-recipient-row">
+            <input type="checkbox" class="send-empfaenger-check" data-idx="${i}" checked>
+            <span>${escapeHtml(e.name)} (${escapeHtml(e.mail)})</span>
+          </label>`).join('');
+      }
+    }
+    const extraInput = el('send-extra-mail');
+    if (extraInput) extraInput.value = '';
+
+    const modal = el('modal-send-nachbestellung');
+    if (modal) modal.style.display = 'flex';
+  }
+
+  function closeSendDialog() {
+    const modal = el('modal-send-nachbestellung');
+    if (modal) modal.style.display = 'none';
+  }
+
+  async function confirmSend() {
+    const posten = await DB.allPosten();
+    if (posten.length === 0) {
+      showToast('Der Korb ist leer.');
+      closeSendDialog();
+      return;
+    }
+
+    const empfaenger = (typeof Settings !== 'undefined') ? Settings.getEmpfaenger() : [];
+    const mails = [];
+    document.querySelectorAll('.send-empfaenger-check').forEach(cb => {
+      if (cb.checked) {
+        const idx = Number(cb.dataset.idx);
+        if (empfaenger[idx]) mails.push(empfaenger[idx].mail);
+      }
+    });
+
+    const extraMail = (el('send-extra-mail')?.value || '').trim();
+    if (extraMail) {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(extraMail)) {
+        showToast('Zusätzliche Adresse ist ungültig.');
+        return;
+      }
+      mails.push(extraMail);
+    }
+
+    const monteur = (typeof Settings !== 'undefined') ? Settings.getMonteur() : '';
+
+    const zipBlob = await Exporter.buildZip(posten, monteur);
+    const zipFileName = 'Nachbestellung_' + Exporter.sanitizeFilename(monteur || 'E1Material') + '.zip';
+    Exporter.downloadBlob(zipBlob, zipFileName);
+
+    const mailto = Exporter.buildMailto(posten, monteur, mails);
+    showToast('ZIP heruntergeladen — bitte manuell anhängen.');
+    setTimeout(() => { window.location.href = mailto; }, 400);
+
+    closeSendDialog();
+
+    setTimeout(async () => {
+      const ok = confirm('Korb jetzt leeren?');
+      if (ok) {
+        await DB.clearKorb();
+        await refreshBadge();
+        const view = document.getElementById('view-korb');
+        if (view && view.classList.contains('active')) renderInto(view);
+        showToast('Korb geleert.');
+      }
+    }, 600);
+  }
+
+  function wireSendDialogControls() {
+    const sendBtn = el('btn-send-confirm');
+    if (sendBtn && !sendBtn.dataset.wired) {
+      sendBtn.dataset.wired = '1';
+      sendBtn.addEventListener('click', () => confirmSend());
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', wireSendDialogControls);
+
+  return { addFromItem, addFreitext, renderInto, refreshBadge, closeDialog, closeSendDialog };
 })();
