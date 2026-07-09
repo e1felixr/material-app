@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#1565C0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="google" content="notranslate, nositelinkssearchbox">
+  <meta name="format-detection" content="telephone=no, date=no, address=no">
+  <title>E1 Material</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ════════ HEADER ════════ -->
+<div class="header" id="header">
+  <div class="header-text" id="header-title">
+    <span class="header-main">E1 Material <span id="header-version"></span></span>
+  </div>
+  <button class="btn-help" id="btn-help" onclick="location.href='hilfe/index.html'" title="Hilfe / Anleitung">&#9432;</button>
+</div>
+
+<!-- ════════ VIEW: Katalog ════════ -->
+<div class="screen active" id="view-katalog" data-view="katalog">
+  <p class="hint">Materialkatalog wird geladen…</p>
+</div>
+
+<!-- ════════ VIEW: Korb ════════ -->
+<div class="screen" id="view-korb" data-view="korb">
+  <p class="hint">Nachbestell-Korb wird geladen…</p>
+</div>
+
+<!-- ════════ VIEW: Einstellungen ════════ -->
+<div class="screen" id="view-einstellungen" data-view="einstellungen">
+
+  <!-- Block B: Materialkatalog-Verwaltung. Block D ergaenzt hier weitere
+       .settings-group-Bloecke (Monteur-Name, Empfaengerliste). -->
+  <div class="settings-group" id="settings-katalog">
+    <label>Materialkatalog</label>
+    <div class="action-bar">
+      <button class="btn btn-outline btn-sm" id="btn-katalog-vorlage" type="button">Vorlage herunterladen</button>
+      <label class="btn btn-primary btn-sm" for="input-katalog-import" style="cursor:pointer;">Materialliste importieren</label>
+      <input type="file" id="input-katalog-import" accept=".xlsx" style="display:none">
+    </div>
+    <p class="hint">Import ersetzt den kompletten Katalog. Kopfzeile muss in Excel-Zeile 3 stehen (Spalten: Kategorie, Fach, Material, Type, Menge, Bemerkung).</p>
+  </div>
+
+  <!-- Block D: Monteur-Name -->
+  <div class="settings-group" id="settings-monteur">
+    <label for="input-monteur-name">Dein Name (Monteur)</label>
+    <input type="text" id="input-monteur-name" placeholder="Vor- und Nachname" autocomplete="name">
+    <button class="btn btn-primary btn-sm" id="btn-monteur-save" type="button" style="margin-top:8px;">Speichern</button>
+  </div>
+
+  <!-- Block D: Empfaengerliste -->
+  <div class="settings-group" id="settings-empfaenger">
+    <label>Empfänger für Nachbestellung</label>
+    <div id="empfaenger-list"></div>
+    <div class="form-row" style="margin-top:8px;">
+      <input type="text" id="input-empfaenger-name" placeholder="Name" autocomplete="off">
+      <input type="email" id="input-empfaenger-mail" placeholder="E-Mail-Adresse" autocomplete="off">
+    </div>
+    <button class="btn btn-outline btn-sm" id="btn-empfaenger-add" type="button" style="margin-top:8px;">+ Empfänger hinzufügen</button>
+    <p class="hint">Diese Adressen stehen beim Versand der Nachbestellung zur Auswahl.</p>
+  </div>
+
+</div>
+
+<!-- ════════ NAVIGATION (Tab-Leiste) ════════ -->
+<nav class="tab-nav" id="tab-nav">
+  <button class="tab-nav-btn active" data-view="katalog" onclick="App.showView('katalog')">
+    <span class="tab-nav-label">Katalog</span>
+  </button>
+  <button class="tab-nav-btn" data-view="korb" onclick="App.showView('korb')">
+    <span class="tab-nav-label">Korb</span>
+    <span class="count-badge" id="korb-badge" style="display:none">0</span>
+  </button>
+  <button class="tab-nav-btn" data-view="einstellungen" onclick="App.showView('einstellungen')">
+    <span class="tab-nav-label">Einstellungen</span>
+  </button>
+</nav>
+
+<!-- ════════ Modal: Korb-Posten erfassen/bearbeiten (Block C) ════════ -->
+<div class="modal-overlay" id="modal-posten" style="display:none" onclick="if(event.target===this) Basket.closeDialog()">
+  <div class="modal">
+    <h2 id="posten-modal-title">Posten erfassen</h2>
+
+    <div id="posten-readonly-info" style="display:none; margin-bottom:12px;">
+      <div id="posten-readonly-material" class="card-title" style="margin-bottom:2px;"></div>
+      <div id="posten-readonly-sub" class="card-sub"></div>
+    </div>
+
+    <div id="posten-editable-fields" style="display:none;">
+      <div class="form-group">
+        <label>Material *</label>
+        <input type="text" id="posten-input-material" placeholder="z.B. Kabelbinder 200mm" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>Type</label>
+        <input type="text" id="posten-input-type" placeholder="optional" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>Kategorie</label>
+        <input type="text" id="posten-input-kategorie" placeholder="Sonstiges" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label id="posten-menge-label">Nachbestell-Menge</label>
+      <input type="number" id="posten-input-menge" min="0" step="any" inputmode="decimal">
+    </div>
+
+    <div class="form-group">
+      <label>Notiz</label>
+      <textarea id="posten-input-notiz" rows="2" placeholder="optional"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Foto</label>
+      <div class="photo-slot" id="posten-photo-slot" onclick="document.getElementById('posten-photo-input').click()">
+        <div class="placeholder">Foto aufnehmen</div>
+      </div>
+      <input type="file" id="posten-photo-input" accept="image/*" capture="environment" style="display:none">
+    </div>
+
+    <button class="btn btn-primary" id="posten-modal-save" type="button">Speichern</button>
+    <button class="btn btn-outline" type="button" onclick="Basket.closeDialog()">Abbrechen</button>
+  </div>
+</div>
+
+<!-- ════════ Modal: Erststart — Monteur-Name (Pflicht) ════════ -->
+<div class="modal-overlay" id="modal-erststart" style="display:none">
+  <div class="modal">
+    <h2>Willkommen bei E1 Material</h2>
+    <p style="font-size:.85rem;color:var(--text-sec);margin-bottom:12px">Bitte gib deinen Namen ein, bevor du startest.</p>
+    <div class="form-group">
+      <label>Dein Name *</label>
+      <input type="text" id="erststart-input-name" placeholder="Vor- und Nachname" autocomplete="name">
+    </div>
+    <button class="btn btn-primary" id="erststart-save" type="button">Speichern</button>
+  </div>
+</div>
+
+<!-- ════════ Modal: Nachbestellung senden (Block D3) ════════ -->
+<div class="modal-overlay" id="modal-send-nachbestellung" style="display:none" onclick="if(event.target===this) Basket.closeSendDialog()">
+  <div class="modal">
+    <h2>Nachbestellung senden</h2>
+    <p style="font-size:.85rem;color:var(--text-sec);margin-bottom:12px">ZIP wird heruntergeladen. Danach öffnet sich das Mailprogramm — bitte die ZIP-Datei manuell anhängen.</p>
+    <div class="send-recipients" id="send-empfaenger-list"></div>
+    <div class="form-group" style="margin-top:12px;">
+      <label>Zusätzliche Adresse</label>
+      <input type="email" id="send-extra-mail" placeholder="optional">
+    </div>
+    <button class="btn btn-primary" id="btn-send-confirm" type="button">Senden</button>
+    <button class="btn btn-outline" type="button" onclick="Basket.closeSendDialog()">Abbrechen</button>
+  </div>
+</div>
+
+<!-- ════════ Toast ════════ -->
+<div class="toast" id="toast"></div>
+
+<!-- ════════ Scripts ════════ -->
+<script src="lib/xlsx.mini.min.js"></script>
+<script src="js/db.js"></script>
+<script src="js/catalog.js"></script>
+<script src="js/basket.js"></script>
+<script src="js/export.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
