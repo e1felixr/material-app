@@ -66,6 +66,54 @@
   </button>
 </nav>
 
+<!-- ════════ Modal: Korb-Posten erfassen/bearbeiten (Block C) ════════ -->
+<div class="modal-overlay" id="modal-posten" style="display:none" onclick="if(event.target===this) Basket.closeDialog()">
+  <div class="modal">
+    <h2 id="posten-modal-title">Posten erfassen</h2>
+
+    <div id="posten-readonly-info" style="display:none; margin-bottom:12px;">
+      <div id="posten-readonly-material" class="card-title" style="margin-bottom:2px;"></div>
+      <div id="posten-readonly-sub" class="card-sub"></div>
+    </div>
+
+    <div id="posten-editable-fields" style="display:none;">
+      <div class="form-group">
+        <label>Material *</label>
+        <input type="text" id="posten-input-material" placeholder="z.B. Kabelbinder 200mm" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>Type</label>
+        <input type="text" id="posten-input-type" placeholder="optional" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>Kategorie</label>
+        <input type="text" id="posten-input-kategorie" placeholder="Sonstiges" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Nachbestell-Menge</label>
+      <input type="number" id="posten-input-menge" min="0" step="any" inputmode="decimal">
+    </div>
+
+    <div class="form-group">
+      <label>Notiz</label>
+      <textarea id="posten-input-notiz" rows="2" placeholder="optional"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Foto</label>
+      <div class="photo-slot" id="posten-photo-slot" onclick="document.getElementById('posten-photo-input').click()">
+        <div class="placeholder">Foto aufnehmen</div>
+      </div>
+      <input type="file" id="posten-photo-input" accept="image/*" capture="environment" style="display:none">
+    </div>
+
+    <button class="btn btn-primary" id="posten-modal-save" type="button">Speichern</button>
+    <button class="btn btn-outline" type="button" onclick="Basket.closeDialog()">Abbrechen</button>
+  </div>
+</div>
+
 <!-- ════════ Toast ════════ -->
 <div class="toast" id="toast"></div>
 
