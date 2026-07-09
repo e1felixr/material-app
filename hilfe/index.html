@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#1565C0">
+  <title>Hilfe — E1 Material</title>
+  <link rel="icon" href="../icons/icon-192.png">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<!-- ════════ HEADER ════════ -->
+<div class="header">
+  <button class="btn-back" onclick="location.href='../index.html'" title="Zurück zur App">&#8592;</button>
+  <div class="header-text">
+    <span class="header-main">Hilfe — E1 Material</span>
+  </div>
+</div>
+
+<!-- ════════ INHALT ════════ -->
+<div class="screen active">
+  <div class="help-content">
+
+    <h2>In drei Schritten zur Nachbestellung</h2>
+    <ol>
+      <li><strong>Material finden</strong> — Tab <em>Katalog</em>: nach Kategorie durchblättern oder oben suchen.</li>
+      <li><strong>In den Korb legen</strong> — Auf "+ In Korb" tippen, Menge/Notiz/Foto eintragen und speichern. Fehlt ein Material im Katalog, im Tab <em>Korb</em> "+ Freitext-Posten" nutzen.</li>
+      <li><strong>Senden</strong> — Im Tab <em>Korb</em> auf "Nachbestellung senden" tippen, Empfänger ankreuzen, bestätigen.</li>
+    </ol>
+
+    <h2>Häufige Fragen</h2>
+
+    <h3>Wie pflege ich die Materialliste?</h3>
+    <p>Die Liste steckt in der Datei <code>MatCombo.xlsx</code>. Diese in Excel öffnen, Zeilen anpassen und speichern. Danach in der App unter <strong>Einstellungen &gt; "Materialliste importieren"</strong> die geänderte Datei auswählen — der Import ersetzt den kompletten Katalog und zeigt vorher an, wie viele Posten gefunden wurden.</p>
+    <p>Liegt die Excel-Datei nicht mehr vor, lässt sie sich unter <strong>Einstellungen &gt; "Vorlage herunterladen"</strong> neu beziehen. Wichtig für die Struktur: Die Kopfzeile steht in <strong>Zeile 3</strong>, mit den Spalten Kategorie, Position, Material, Type, Menge, Bemerkung.</p>
+
+    <h3>Warum muss ich das ZIP manuell anhängen?</h3>
+    <p>Ein <code>mailto</code>-Link (der Standardweg, um ohne eigenen Server das Mailprogramm zu öffnen) kann aus Sicherheitsgründen keine Dateien automatisch anhängen. Die App lädt die ZIP-Datei deshalb herunter und öffnet gleichzeitig das Mailprogramm mit fertigem Betreff und Text — die heruntergeladene ZIP-Datei muss nur noch von Hand an die E-Mail angehängt werden.</p>
+
+    <h3>Wo liegen meine Daten?</h3>
+    <p>Ausschließlich lokal auf dem Gerät — es gibt keinen Server und keine automatische Übertragung. Der Materialkatalog und die Einstellungen liegen im Browser-Speicher (localStorage), der Korb inklusive Fotos in der IndexedDB. Beim Löschen des Browser-Cache bleiben diese Daten erhalten.</p>
+
+    <h3>Muss ich die App neu installieren?</h3>
+    <p>Im Normalfall nein — Code, Katalog-Logik und Optik aktualisieren sich automatisch beim nächsten Öffnen mit Internetverbindung (Network-first). Eine Neuinstallation ist nur nötig, wenn sich Name, Icon oder Grundeinstellungen der App ändern (steht dann im Changelog); dabei gehen keine Daten verloren.</p>
+
+  </div>
+</div>
+
+</body>
+</html>
