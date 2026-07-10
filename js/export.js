@@ -188,14 +188,13 @@ const Exporter = (() => {
     return new Blob([zipBytes], { type: 'application/zip' });
   }
 
-  // ── D2: buildMailto — Betreff + Body (Posten gruppiert nach Kategorie) ──
+  // ── D2: Betreff + Body (Posten gruppiert nach Kategorie) ──
 
-  function buildMailto(posten, monteur, empfaengerMails) {
-    const list = posten || [];
-    const now = new Date();
-    const datum = formatDatum(now);
-    const subject = `Materialnachbestellung — ${monteur || ''} — ${datum}`;
+  function buildSubject(monteur, datum) {
+    return `Materialnachbestellung — ${monteur || ''} — ${datum}`;
+  }
 
+  function buildBody(list, monteur, datum, schlusshinweis) {
     const byKategorie = new Map();
     for (const p of list) {
       const kat = p.kategorie || 'Sonstiges';
@@ -216,9 +215,17 @@ const Exporter = (() => {
       }
       lines.push('');
     }
-    lines.push('Liste und Fotos als ZIP anbei — bitte manuell anhängen.');
+    if (schlusshinweis) lines.push(schlusshinweis);
+    return lines.join('\n');
+  }
 
-    let body = lines.join('\n');
+  // buildMailto — Fallback (Desktop / Browser ohne Datei-Share): ZIP separat, manuell anhängen.
+  function buildMailto(posten, monteur, empfaengerMails) {
+    const list = posten || [];
+    const datum = formatDatum(new Date());
+    const subject = buildSubject(monteur, datum);
+
+    let body = buildBody(list, monteur, datum, 'Liste und Fotos als ZIP anbei — bitte manuell anhängen.');
     const MAX_BODY_LEN = 1500;
     if (body.length > MAX_BODY_LEN) {
       // Lange Postenlisten sprengen manche mailto-Limits (v.a. iOS Mail) — Kurzfassung statt Kappen mitten im Text.
@@ -233,5 +240,136 @@ const Exporter = (() => {
     return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   }
 
-  return { buildZip, buildMailto, downloadBlob, sanitizeFilename };
+  // buildShare — Betreff + Body für den Teilen-Dialog. Der Empfänger lässt sich über Web Share
+  // technisch nicht vorbelegen, daher als "An:"-Zeile im Body, damit der Monteur ihn kennt und
+  // in der Mail-App bequem übernehmen kann. Die eigentlichen Anhänge (PDF + CSV) kommen separat.
+  function buildShare(posten, monteur, empfaengerMails) {
+    const list = posten || [];
+    const datum = formatDatum(new Date());
+    const title = buildSubject(monteur, datum);
+
+    const mails = (empfaengerMails || []).filter(Boolean);
+    const empfaengerZeile = mails.length ? `An: ${mails.join(', ')}\n\n` : '';
+    const text = empfaengerZeile + buildBody(list, monteur, datum, '');
+    return { title, text };
+  }
+
+  // ── Web-Share-Anhänge: CSV (Daten für Excel) + PDF (Bericht mit Fotos) ──
+  // Chrome teilt WEDER .zip NOCH .xlsx (beide stehen nicht auf der Freigabe-Liste der Web Share
+  // API). Erlaubt sind u.a. PDF, CSV, Bilder. Darum werden zum Teilen ein PDF-Bericht und eine
+  // CSV-Liste angehängt — beide teilbar, zusammen ein handlicher Ersatz für das ZIP.
+
+  function csvEscape(v) {
+    const s = String(v == null ? '' : v);
+    return /[";\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+
+  function buildCsv(posten) {
+    const list = posten || [];
+    const headers = ['Kategorie', 'Fach', 'Material', 'Type', 'Menge', 'Notiz', 'Foto', 'Erfasst am'];
+    const rows = list.map((p, i) => [
+      p.kategorie || '',
+      p.position || '',
+      p.material || '',
+      p.type || '',
+      p.nachbestell_menge != null ? p.nachbestell_menge : '',
+      p.notiz || '',
+      p.foto_blob ? `foto_${i + 1}.jpg` : '',
+      formatErfasstAm(p.erfasst_am),
+    ]);
+    const lines = [headers, ...rows].map(r => r.map(csvEscape).join(';'));
+    // UTF-8-BOM, damit Excel Umlaute korrekt liest; Semikolon = deutsches Excel-Trennzeichen.
+    return '﻿' + lines.join('\r\n');
+  }
+
+  // Foto-Blob in ein geladenes <img> überführen (für jsPDF.addImage + Seitenverhältnis).
+  function loadImage(blob) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      img.onload = () => resolve({ img, url });
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Bild konnte nicht geladen werden')); };
+      img.src = url;
+    });
+  }
+
+  async function buildPdf(posten, monteur) {
+    if (!window.jspdf || !window.jspdf.jsPDF) throw new Error('jsPDF nicht geladen');
+    const list = posten || [];
+    const datum = formatDatum(new Date());
+    const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+    const margin = 15;
+    let y = margin;
+    const platzSchaffen = (noetig) => { if (y + noetig > pageH - margin) { doc.addPage(); y = margin; } };
+
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(16);
+    doc.text('Materialnachbestellung', margin, y); y += 8;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(11);
+    doc.text('Monteur: ' + (monteur || '-'), margin, y); y += 6;
+    doc.text('Datum: ' + datum, margin, y); y += 6;
+    doc.text('Posten: ' + list.length, margin, y); y += 9;
+
+    const byKat = new Map();
+    for (const p of list) {
+      const kat = p.kategorie || 'Sonstiges';
+      if (!byKat.has(kat)) byKat.set(kat, []);
+      byKat.get(kat).push(p);
+    }
+    doc.setFontSize(11);
+    for (const [kat, items] of byKat) {
+      platzSchaffen(10);
+      doc.setFont('helvetica', 'bold'); doc.text(kat, margin, y); y += 6;
+      doc.setFont('helvetica', 'normal');
+      for (const p of items) {
+        const typeStr = p.type ? ' ' + p.type : '';
+        const notizStr = p.notiz ? ' [' + p.notiz + ']' : '';
+        const line = '- ' + (p.material || '') + typeStr + '  Menge: ' + (p.nachbestell_menge ?? '') + notizStr;
+        const wrapped = doc.splitTextToSize(line, pageW - 2 * margin);
+        platzSchaffen(wrapped.length * 5 + 1);
+        doc.text(wrapped, margin, y); y += wrapped.length * 5 + 1;
+      }
+      y += 3;
+    }
+
+    const mitFoto = list.map((p, i) => ({ p, i })).filter(x => x.p.foto_blob);
+    if (mitFoto.length) {
+      doc.addPage(); y = margin;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(13);
+      doc.text('Fotos', margin, y); y += 8;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+      for (const { p, i } of mitFoto) {
+        let loaded;
+        try { loaded = await loadImage(p.foto_blob); } catch (_) { continue; }
+        const { img, url } = loaded;
+        const maxW = pageW - 2 * margin;
+        const maxH = 90;
+        let w = maxW, h = img.naturalHeight / img.naturalWidth * w;
+        if (h > maxH) { h = maxH; w = img.naturalWidth / img.naturalHeight * h; }
+        platzSchaffen(h + 8);
+        const caption = 'foto_' + (i + 1) + '.jpg - ' + (p.material || '') + (p.type ? ' ' + p.type : '');
+        doc.text(doc.splitTextToSize(caption, maxW), margin, y); y += 4;
+        try { doc.addImage(img, 'JPEG', margin, y, w, h); } catch (_) {}
+        URL.revokeObjectURL(url);
+        y += h + 6;
+      }
+    }
+
+    return doc.output('blob');
+  }
+
+  // buildShareFiles — die teilbaren Anhänge (PDF-Bericht + CSV-Liste) als File-Objekte.
+  async function buildShareFiles(posten, monteur) {
+    const list = posten || [];
+    const safe = sanitizeFilename(monteur || 'E1Material');
+    const pdfBlob = await buildPdf(list, monteur);
+    const csvStr = buildCsv(list);
+    return [
+      new File([pdfBlob], 'Nachbestellung_' + safe + '.pdf', { type: 'application/pdf' }),
+      new File([csvStr], 'Nachbestellung_' + safe + '.csv', { type: 'text/csv' }),
+    ];
+  }
+
+  return { buildZip, buildMailto, buildShare, buildShareFiles, downloadBlob, sanitizeFilename };
 })();

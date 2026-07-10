@@ -1,5 +1,5 @@
 // sw.js - Service Worker für Offline-Fähigkeit
-const CACHE_NAME = 'e1-material-v0.2.0';
+const CACHE_NAME = 'e1-material-v0.3.0';
 const ASSETS = [
   './',
   './index.html',
@@ -11,6 +11,7 @@ const ASSETS = [
   './js/export.js',
   './manifest.json',
   './lib/xlsx.mini.min.js',
+  './lib/jspdf.umd.min.js',
   './data/MatCombo.xlsx',
   './hilfe/index.html',
   './icons/icon-192.png',

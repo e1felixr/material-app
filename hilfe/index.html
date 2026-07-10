@@ -26,7 +26,7 @@
     <ol>
       <li><strong>Material finden</strong> — Tab <em>Katalog</em>: nach Kategorie durchblättern oder oben suchen.</li>
       <li><strong>Zur Bestellung hinzufügen</strong> — Auf "+ Bestellen" tippen, Menge/Notiz/Foto eintragen und speichern. Fehlt ein Material im Katalog, im Tab <em>Bestellung</em> "+ Freitext-Posten" nutzen.</li>
-      <li><strong>Senden</strong> — Im Tab <em>Bestellung</em> auf "Nachbestellung senden" tippen, Empfänger ankreuzen, bestätigen.</li>
+      <li><strong>Senden</strong> — Im Tab <em>Bestellung</em> auf "Liste senden" tippen, Empfänger wählen und bestätigen. Auf dem Smartphone öffnet sich der Teilen-Dialog — dort die Mail-App wählen; Bericht (PDF) und Liste (CSV) hängen bereits an.</li>
     </ol>
 
     <h2>Häufige Fragen</h2>
@@ -35,8 +35,8 @@
     <p>Die Liste steckt in der Datei <code>MatCombo.xlsx</code>. Diese in Excel öffnen, Zeilen anpassen und speichern. Danach in der App unter <strong>Einstellungen &gt; "Materialliste importieren"</strong> die geänderte Datei auswählen — der Import ersetzt den kompletten Katalog und zeigt vorher an, wie viele Posten gefunden wurden.</p>
     <p>Liegt die Excel-Datei nicht mehr vor, lässt sie sich unter <strong>Einstellungen &gt; "Vorlage herunterladen"</strong> neu beziehen. Wichtig für die Struktur: Die Kopfzeile steht in <strong>Zeile 3</strong>, mit den Spalten Kategorie, Position, Material, Type, Menge, Bemerkung.</p>
 
-    <h3>Warum muss ich das ZIP manuell anhängen?</h3>
-    <p>Ein <code>mailto</code>-Link (der Standardweg, um ohne eigenen Server das Mailprogramm zu öffnen) kann aus Sicherheitsgründen keine Dateien automatisch anhängen. Die App lädt die ZIP-Datei deshalb herunter und öffnet gleichzeitig das Mailprogramm mit fertigem Betreff und Text — die heruntergeladene ZIP-Datei muss nur noch von Hand an die E-Mail angehängt werden.</p>
+    <h3>Muss ich etwas von Hand anhängen?</h3>
+    <p>Auf dem Smartphone (Android) nicht: Beim Senden öffnet sich der Teilen-Dialog, und es hängen bereits zwei Dateien an — ein <strong>Bericht als PDF</strong> (die Posten samt Fotos) und die <strong>Liste als CSV</strong> (in Excel zu öffnen). Man wählt nur noch die Mail-App und den Empfänger. Nur wenn das Gerät kein Datei-Teilen unterstützt (etwa mancher Desktop-Browser), fällt die App auf den älteren Weg zurück: Sie lädt ein ZIP (Excel + Fotos) herunter und öffnet das Mailprogramm — dann muss die ZIP-Datei einmal von Hand angehängt werden. Grund für den Umweg: Chrome erlaubt aus Sicherheitsgründen kein Teilen von ZIP- oder Excel-Dateien, wohl aber von PDF und CSV.</p>
 
     <h3>Wo liegen meine Daten?</h3>
     <p>Ausschließlich lokal auf dem Gerät — es gibt keinen Server und keine automatische Übertragung. Der Materialkatalog und die Einstellungen liegen im Browser-Speicher (localStorage), die Bestellung samt Fotos in der IndexedDB. Beim Löschen des Browser-Cache bleiben diese Daten erhalten.</p>

@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.0 (10.07.2026, 14:53 Uhr)
+
+### Verbessert
+- **Senden ohne Hand-Anhängen (Android)** — Beim Senden öffnet sich der System-Teilen-Dialog; ein **PDF-Bericht** (die Posten samt Fotos) und die **Liste als CSV** (für Excel) hängen bereits an. Man wählt nur noch Mail-App und Empfänger — das lästige manuelle Anhängen entfällt. Wo Datei-Teilen fehlt (etwa mancher Desktop-Browser), bleibt der bisherige Weg — ZIP-Download plus Mailprogramm — als Rückfallebene erhalten. (Hintergrund: Chrome teilt weder ZIP- noch Excel-Dateien, wohl aber PDF und CSV.)
+- **Klarere Beschriftung** — Der Knopf heißt jetzt „Liste senden" statt „Nachbestellung senden". Der frühere Name klang nach einer endgültigen Bestellung; tatsächlich bereitet der Knopf nur den Versand als E-Mail vor.
+
 ## v0.2.0 (10.07.2026, 11:02 Uhr)
 
 ### Neu

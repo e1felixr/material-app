@@ -156,11 +156,11 @@
   </div>
 </div>
 
-<!-- ════════ Modal: Nachbestellung senden (Block D3) ════════ -->
+<!-- ════════ Modal: Liste senden (Block D3) ════════ -->
 <div class="modal-overlay" id="modal-send-nachbestellung" style="display:none" onclick="if(event.target===this) Basket.closeSendDialog()">
   <div class="modal">
-    <h2>Nachbestellung senden</h2>
-    <p style="font-size:.85rem;color:var(--text-sec);margin-bottom:12px">ZIP wird heruntergeladen. Danach öffnet sich das Mailprogramm — bitte die ZIP-Datei manuell anhängen.</p>
+    <h2>Liste senden</h2>
+    <p id="send-dialog-hint" style="font-size:.85rem;color:var(--text-sec);margin-bottom:12px"></p>
     <div class="send-recipients" id="send-empfaenger-list"></div>
     <div class="form-group" style="margin-top:12px;">
       <label>Zusätzliche Adresse</label>
@@ -176,6 +176,7 @@
 
 <!-- ════════ Scripts ════════ -->
 <script src="lib/xlsx.mini.min.js"></script>
+<script src="lib/jspdf.umd.min.js"></script>
 <script src="js/db.js"></script>
 <script src="js/catalog.js"></script>
 <script src="js/basket.js"></script>

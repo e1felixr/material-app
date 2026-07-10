@@ -4,7 +4,7 @@
 // + Service-Worker-Registrierung. Restliche Funktionalitaet (Katalog rendern,
 // Korb rendern, Erststart-Dialog, Versand) folgt in Block B/C/D.
 
-let APP_VERSION = 'v0.2.0'; // Fallback, wird per fetch aus version.json ueberschrieben
+let APP_VERSION = 'v0.3.0'; // Fallback, wird per fetch aus version.json ueberschrieben
 
 function showToast(msg, duration = 2000) {
   const t = document.getElementById('toast');

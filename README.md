@@ -67,15 +67,15 @@ Fehlt ein Material im Katalog, legt **"+ Freitext-Posten"** (im Korb) einen frei
 
 Im Tab **Korb** (Badge zeigt die Postenzahl) lassen sich alle erfassten Posten ansehen, bearbeiten (Menge/Notiz/Foto) oder entfernen.
 
-### 5. Nachbestellung senden
+### 5. Liste senden
 
-Button **"Nachbestellung senden"** öffnet einen Dialog zur Auswahl der Empfänger (aus der in den Einstellungen hinterlegten Empfängerliste, ankreuzbar) plus einem Feld für eine zusätzliche Adresse. Nach Bestätigung:
+Button **"Liste senden"** öffnet einen Dialog zur Auswahl der Empfänger (aus der in den Einstellungen hinterlegten Empfängerliste, ankreuzbar) plus einem Feld für eine zusätzliche Adresse. Nach Bestätigung:
 
-1. Eine **ZIP-Datei** wird heruntergeladen (Nachbestell-Liste als Excel-Tabelle + alle Fotos).
-2. Das **Mailprogramm** öffnet sich automatisch mit vorausgefülltem Betreff, Empfängern und Text.
-3. **Wichtig:** Die heruntergeladene ZIP-Datei muss **manuell an die E-Mail angehängt** werden — ein automatischer Anhang ist aus einem `mailto`-Link heraus technisch nicht möglich.
+**Auf dem Smartphone (Android)** öffnet sich der System-Teilen-Dialog. Man wählt die Mail-App (z. B. Gmail) — es hängen bereits ein **PDF-Bericht** (die Posten samt Fotos) und die **Liste als CSV** (in Excel zu öffnen) an, Betreff und Text sind vorausgefüllt. Der Empfänger lässt sich über den Teilen-Dialog technisch nicht vorbelegen; er wird in der Mail-App gewählt und steht zusätzlich als „An:"-Zeile im Mailtext.
 
-Danach fragt die App, ob der Korb geleert werden soll.
+**Fallback** (Desktop-Browser ohne Datei-Teilen): Es wird ein **ZIP** (Excel-Liste + alle Fotos) heruntergeladen und das Mailprogramm mit vorausgefülltem Betreff, Empfängern und Text geöffnet — dann muss die ZIP-Datei **manuell an die E-Mail angehängt** werden. Hintergrund: Chrome teilt aus Sicherheitsgründen weder ZIP- noch Excel-Dateien (`application/zip`, `.xlsx`), wohl aber PDF und CSV — daher der PDF+CSV-Weg auf dem Smartphone und das ZIP nur als Rückfallebene.
+
+Danach fragt die App, ob die Bestellung geleert werden soll.
 
 ## Stammdaten-Pflege in Excel
 

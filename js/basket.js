@@ -308,7 +308,7 @@ const Basket = (() => {
     const header = `
       <div class="action-bar" style="margin-bottom:10px;">
         <button class="btn btn-outline btn-sm" id="btn-freitext-posten" type="button">+ Freitext-Posten</button>
-        <button class="btn btn-primary btn-sm" id="btn-send-nachbestellung" type="button" ${posten.length === 0 ? 'disabled' : ''}>Nachbestellung senden</button>
+        <button class="btn btn-primary btn-sm" id="btn-send-nachbestellung" type="button" ${posten.length === 0 ? 'disabled' : ''}>Liste senden</button>
       </div>`;
 
     if (posten.length === 0) {
@@ -378,6 +378,19 @@ const Basket = (() => {
     const extraInput = el('send-extra-mail');
     if (extraInput) extraInput.value = '';
 
+    // Hinweistext an das Gerät anpassen: Web Share (PDF + CSV hängen automatisch an) vs. ZIP-Fallback.
+    const hintEl = el('send-dialog-hint');
+    if (hintEl) {
+      let kannTeilen = false;
+      try {
+        const probe = new File([''], 'probe.pdf', { type: 'application/pdf' });
+        kannTeilen = !!(navigator.canShare && navigator.canShare({ files: [probe] })) && !!window.jspdf;
+      } catch (_) { kannTeilen = false; }
+      hintEl.textContent = kannTeilen
+        ? 'Es öffnet sich der Teilen-Dialog — Mail-App (z. B. Gmail) wählen; Bericht (PDF) und Liste (CSV) hängen bereits an.'
+        : 'Die Daten werden als ZIP heruntergeladen, danach öffnet sich das Mailprogramm — bitte die ZIP-Datei manuell anhängen.';
+    }
+
     const modal = el('modal-send-nachbestellung');
     if (modal) modal.style.display = 'flex';
   }
@@ -416,13 +429,35 @@ const Basket = (() => {
     const monteur = (typeof Settings !== 'undefined') ? Settings.getMonteur() : '';
 
     try {
-      const zipBlob = await Exporter.buildZip(posten, monteur);
-      const zipFileName = 'Nachbestellung_' + Exporter.sanitizeFilename(monteur || 'E1Material') + '.zip';
-      Exporter.downloadBlob(zipBlob, zipFileName);
+      // Zum Teilen: PDF-Bericht + CSV-Liste. Beide sind über die Web Share API teilbar — .zip und
+      // .xlsx sind es in Chrome NICHT (stehen nicht auf der Freigabe-Liste erlaubter Dateitypen).
+      const probe = new File([''], 'probe.pdf', { type: 'application/pdf' });
+      const kannTeilen = !!(navigator.canShare && navigator.canShare({ files: [probe] })) && !!window.jspdf;
 
-      const mailto = Exporter.buildMailto(posten, monteur, mails);
-      showToast('ZIP heruntergeladen — bitte manuell anhängen.');
-      setTimeout(() => { window.location.href = mailto; }, 400);
+      let geteilt = false;
+      if (kannTeilen) {
+        try {
+          const shareFiles = await Exporter.buildShareFiles(posten, monteur);
+          const share = Exporter.buildShare(posten, monteur, mails);
+          await navigator.share({ files: shareFiles, title: share.title, text: share.text });
+          geteilt = true;
+        } catch (err) {
+          // Abbruch durch den Nutzer: nichts verschickt — Bestellung bleibt stehen, kein Fallback.
+          if (err && err.name === 'AbortError') return;
+          // Anderer Fehler (PDF-Aufbau / abgelaufene Nutzer-Geste): auf den Download-Weg zurückfallen.
+          console.warn('Web Share fehlgeschlagen — nutze Fallback:', err);
+        }
+      }
+
+      if (!geteilt) {
+        // Fallback (Desktop / Browser ohne Datei-Share / Share fehlgeschlagen): ZIP herunterladen + mailto.
+        const zipBlob = await Exporter.buildZip(posten, monteur);
+        const zipFileName = 'Nachbestellung_' + Exporter.sanitizeFilename(monteur || 'E1Material') + '.zip';
+        Exporter.downloadBlob(zipBlob, zipFileName);
+        const mailto = Exporter.buildMailto(posten, monteur, mails);
+        showToast('ZIP heruntergeladen — bitte manuell anhängen.');
+        setTimeout(() => { window.location.href = mailto; }, 400);
+      }
     } catch (e) {
       console.error('Versand fehlgeschlagen:', e);
       showToast('Versand fehlgeschlagen — bitte erneut versuchen');
