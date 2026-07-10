@@ -4,7 +4,7 @@
 // + Service-Worker-Registrierung. Restliche Funktionalitaet (Katalog rendern,
 // Korb rendern, Erststart-Dialog, Versand) folgt in Block B/C/D.
 
-let APP_VERSION = 'v0.1.0'; // Fallback, wird per fetch aus version.json ueberschrieben
+let APP_VERSION = 'v0.2.0'; // Fallback, wird per fetch aus version.json ueberschrieben
 
 function showToast(msg, duration = 2000) {
   const t = document.getElementById('toast');
@@ -133,10 +133,43 @@ const App = (() => {
     });
   }
 
+  // ── Darstellung: Schriftgroesse ────────────────────────────────────────
+  // Skaliert Schrift + Bedienelemente ueber die CSS-Variable --ui-font-size.
+  const FONT_KEY = 'e1mat_font_size';
+  const FONT_DEFAULT = 15, FONT_MIN = 12, FONT_MAX = 22;
+
+  function _readFontSize() {
+    let px = FONT_DEFAULT;
+    try {
+      const raw = parseInt(localStorage.getItem(FONT_KEY), 10);
+      if (!isNaN(raw)) px = Math.min(FONT_MAX, Math.max(FONT_MIN, raw));
+    } catch {}
+    return px;
+  }
+
+  function applyFontSize(px) {
+    document.documentElement.style.setProperty('--ui-font-size', px + 'px');
+  }
+
+  function loadFontSize() {
+    const px = _readFontSize();
+    applyFontSize(px);
+    return px;
+  }
+
+  function syncFontSlider() {
+    const slider = document.getElementById('set-fontsize');
+    const label = document.getElementById('val-fontsize');
+    const px = _readFontSize();
+    if (slider) slider.value = px;
+    if (label) label.textContent = px + 'px';
+  }
+
   function renderEinstellungen() {
     const nameInput = document.getElementById('input-monteur-name');
     if (nameInput) nameInput.value = Settings.getMonteur();
     renderEmpfaengerList();
+    syncFontSlider();
   }
 
   function wireEinstellungenControls() {
@@ -177,6 +210,18 @@ const App = (() => {
         mailEl.value = '';
         renderEmpfaengerList();
         showToast('Empfänger hinzugefügt.');
+      });
+    }
+
+    const fontSlider = document.getElementById('set-fontsize');
+    if (fontSlider && !fontSlider.dataset.wired) {
+      fontSlider.dataset.wired = '1';
+      fontSlider.addEventListener('input', () => {
+        const px = fontSlider.value;
+        const label = document.getElementById('val-fontsize');
+        if (label) label.textContent = px + 'px';
+        applyFontSize(px);
+        try { localStorage.setItem(FONT_KEY, String(px)); } catch {}
       });
     }
   }
@@ -255,6 +300,7 @@ const App = (() => {
   }
 
   function init() {
+    loadFontSize();
     loadVersion();
     registerServiceWorker();
     wireEinstellungenControls();

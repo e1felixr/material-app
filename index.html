@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#1565C0">
+  <meta name="theme-color" content="#66B32F">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -32,7 +32,7 @@
 
 <!-- ════════ VIEW: Korb ════════ -->
 <div class="screen" id="view-korb" data-view="korb">
-  <p class="hint">Nachbestell-Korb wird geladen…</p>
+  <p class="hint">Bestellung wird geladen…</p>
 </div>
 
 <!-- ════════ VIEW: Einstellungen ════════ -->
@@ -48,6 +48,16 @@
       <input type="file" id="input-katalog-import" accept=".xlsx" style="display:none">
     </div>
     <p class="hint">Import ersetzt den kompletten Katalog. Kopfzeile muss in Excel-Zeile 3 stehen (Spalten: Kategorie, Fach, Material, Type, Menge, Bemerkung).</p>
+  </div>
+
+  <!-- Darstellung: Schriftgroesse (Block E-Nachruestung) -->
+  <div class="settings-group" id="settings-darstellung">
+    <label for="set-fontsize">Schriftgröße</label>
+    <div class="settings-range-row">
+      <input type="range" id="set-fontsize" min="12" max="22" step="1" value="15">
+      <span class="range-value" id="val-fontsize">15px</span>
+    </div>
+    <p class="hint">Vergrößert Schrift und Bedienelemente in der ganzen App.</p>
   </div>
 
   <!-- Block D: Monteur-Name -->
@@ -77,7 +87,7 @@
     <span class="tab-nav-label">Katalog</span>
   </button>
   <button class="tab-nav-btn" data-view="korb" onclick="App.showView('korb')">
-    <span class="tab-nav-label">Korb</span>
+    <span class="tab-nav-label">Bestellung</span>
     <span class="count-badge" id="korb-badge" style="display:none">0</span>
   </button>
   <button class="tab-nav-btn" data-view="einstellungen" onclick="App.showView('einstellungen')">

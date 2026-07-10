@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.2.0 (10.07.2026, 11:02 Uhr)
+
+### Neu
+- **Schriftgröße einstellbar** — In den Einstellungen skaliert der Schieber „Schriftgröße" Text und Bedienelemente der ganzen App (12–22 px, Standard 15 px). Die Einstellung bleibt auf dem Gerät gespeichert.
+
+### Verbessert
+- **„Bestellung" statt „Korb"** — Der Reiter und alle zugehörigen Texte (Knopf „+ Bestellen", Meldungen, Hilfe) des Nachbestell-Korbs heißen jetzt „Bestellung".
+- **E1-Grün als App-Farbe** — Die Oberfläche trägt jetzt durchgängig das E1-Grün (Kopfzeile, Tab-Leiste, Buttons, Akzente) statt des zuvor verwendeten Blaus.
+- **Neues App-Icon** — Griffiges Werkzeug-Symbol (Schraubendreher + Schraubenschlüssel) in E1-Grün statt des blauen Pakets.
+
+### Intern
+- **Totes Vorbild-CSS entfernt** — Aus dem Schwesterprojekt geerbte, in dieser App nie genutzte CSS-Klassen (Heizkörper-/Beleuchtungs-Chips, Modul-Umschalter, Rechner-Buttons, Hilfe-Bildmodal u. a.) aus dem Stylesheet entfernt: 1210 → 642 Zeilen (~24,5 → 13,8 KB), keine sichtbare Änderung.
+
 ## v0.1.0 (09.07.2026, 16:31 Uhr)
 
 ### Neu

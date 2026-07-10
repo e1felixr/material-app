@@ -1,13 +1,13 @@
 /* style.css - Mobile-first, Touch-optimiert */
 :root {
-  --primary: #1565C0;
-  --primary-dark: #0D47A1;
-  --primary-light: #E3F2FD;
-  --module-color: #1565C0;
-  --module-color-light: #E3F2FD;
-  --module-color-dark: #0D47A1;
+  --primary: #66B32F;
+  --primary-dark: #3F7A1A;
+  --primary-light: #F0F7E6;
+  --module-color: #66B32F;
+  --module-color-light: #F0F7E6;
+  --module-color-dark: #3F7A1A;
   --module-text: #fff;
-  --accent: #1565C0;
+  --accent: #5AA329;
   --danger: #C62828;
   --danger-light: #FFEBEE;
   --success: #2E7D32;
@@ -80,14 +80,6 @@ body {
   opacity: 0.7;
 }
 
-.header-sub {
-  font-size: 0.7rem;
-  font-weight: 400;
-  opacity: 0.6;
-  margin-top: 4px;
-  white-space: nowrap;
-}
-
 .btn-back {
   background: none;
   border: none;
@@ -143,36 +135,12 @@ body {
 .btn-primary:active { background: var(--primary-dark); }
 .btn-module { background: var(--module-color); color: var(--module-text); }
 .btn-module:active { opacity: .85; }
-.btn-accent { background: var(--accent); color: #fff; }
-.btn-danger { background: var(--danger); color: #fff; }
 .btn-outline {
   background: transparent;
   border: 2px solid var(--primary);
   color: var(--primary);
 }
 .btn-sm { padding: 8px 14px; font-size: .9rem; min-height: 44px; }
-
-/* ── FAB (Floating Action Button) ── */
-.fab {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--module-color);
-  color: var(--module-text);
-  border: none;
-  font-size: 1.8rem;
-  box-shadow: 0 4px 8px rgba(0,0,0,.25);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 50;
-}
-
-.fab:active { transform: scale(.92); }
 
 /* ── Forms ── */
 .form-group {
@@ -229,60 +197,7 @@ body {
   gap: 10px;
 }
 
-.form-row-3 {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 10px;
-}
-
-/* ── Toggle Buttons ── */
-.toggle-group {
-  display: flex;
-  gap: 8px;
-}
-
-.toggle-btn {
-  flex: 0 0 auto;
-  width: 40px;
-  padding: 6px 0;
-  border: 2px solid var(--border);
-  border-radius: var(--radius);
-  background: #fff;
-  font-size: .9rem;
-  font-weight: 500;
-  cursor: pointer;
-  text-align: center;
-  min-height: 36px;
-  transition: all .15s;
-}
-
-.toggle-btn.active {
-  border-color: var(--module-color);
-  background: var(--module-color-light);
-  color: var(--module-color);
-  font-weight: 600;
-}
-
-/* Auto-width Toggle für Textlabels */
-.toggle-group-auto {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.toggle-group-auto .toggle-btn {
-  width: auto;
-  padding: 6px 10px;
-  min-height: 32px;
-  font-size: .82rem;
-}
-
 /* ── Photo Slots ── */
-.photo-slots {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 10px;
-}
-
 .photo-slot {
   aspect-ratio: 4/3;
   border: 2px dashed var(--border);
@@ -373,27 +288,6 @@ body {
   color: #888;
   white-space: nowrap;
 }
-.import-info-box {
-  font-size: .8rem;
-  color: #555;
-  background: var(--primary-light);
-  border-radius: 6px;
-  padding: 8px 12px;
-}
-.import-banner {
-  background: var(--primary-light);
-  border: 1px dashed var(--primary);
-  border-radius: 8px;
-  padding: 10px 14px;
-  margin-bottom: 12px;
-  font-size: .8rem;
-  color: var(--primary-dark);
-  cursor: pointer;
-  text-align: center;
-}
-.import-banner:active {
-  background: #bbdefb;
-}
 
 /* ── Form Actions ── */
 .form-actions {
@@ -405,29 +299,6 @@ body {
 }
 
 .form-actions .btn { flex: 1; }
-
-/* Zweizeilige Button-Leiste: jede Reihe volle Breite */
-.form-actions-row {
-  display: flex;
-  gap: 10px;
-  width: 100%;
-}
-
-/* Info-Punkt im Button (statt eigenem Element zwischen den Buttons) */
-.btn-info-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  margin-left: 5px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.35);
-  color: inherit;
-  font-size: 0.75rem;
-  font-weight: bold;
-  vertical-align: middle;
-}
 
 /* ── Empty State ── */
 .empty-state {
@@ -495,88 +366,6 @@ body {
   color: var(--danger);
 }
 
-/* ── Room-based HK list ── */
-.room-card {
-  cursor: default;
-  padding: 8px 12px;
-  margin-bottom: 6px;
-}
-
-.room-header {
-  font-weight: 600;
-  font-size: .82rem;
-  margin-bottom: 4px;
-  color: var(--text);
-}
-
-.room-hks, .room-bels, .room-items {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.room-hk-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 7px;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  background: #F0F7E6;
-  cursor: pointer;
-  font-size: .78rem;
-  transition: border-color .15s;
-  position: relative;
-}
-
-.room-hk-chip:active {
-  border-color: #66B32F;
-}
-
-.room-bel-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 7px;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  background: #FFF9C4;
-  cursor: pointer;
-  font-size: .78rem;
-  transition: border-color .15s;
-  position: relative;
-}
-
-.room-bel-chip:active {
-  border-color: #FFCC00;
-}
-
-.room-hk-nr, .room-bel-nr {
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.chip-fotos {
-  font-size: .7rem;
-  letter-spacing: -2px;
-}
-
-.room-hk-del, .room-bel-del {
-  background: none;
-  border: none;
-  color: var(--danger);
-  font-size: .9rem;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 0 2px;
-  line-height: 1;
-  opacity: .6;
-}
-
-.room-hk-del:active, .room-bel-del:active {
-  opacity: 1;
-}
-
 /* ── HK Type Badge ── */
 .badge {
   display: inline-block;
@@ -588,46 +377,12 @@ body {
   color: var(--module-color-dark, var(--module-color));
 }
 
-/* ── Section Title ── */
-.section-title {
-  font-size: .8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .5px;
-  color: var(--module-color);
-  margin: 14px 0 6px;
-  padding-bottom: 4px;
-  border-bottom: 2px solid var(--module-color-light);
-}
-
-.section-title-hk {
-  color: #66B32F;
-  border-bottom-color: #F0F7E6;
-}
-
-.section-title-bel {
-  color: #B8860B;
-  border-bottom-color: #FFF9C4;
-}
-.compact-toggle {
-  float: right;
-  font-size: .75rem;
-  font-weight: 400;
-  color: #888;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-.compact-toggle input { margin: 0; }
-
 /* ── Toast ── */
 /* Feld leuchtet kurz auf, wenn eine Eingabe automatisch umgerechnet wurde (m -> mm) */
 @keyframes field-flash {
   0%   { background-color: #FFE082; }
   100% { background-color: #fff; }
 }
-.field-flash { animation: field-flash 1.8s ease-out; }
 
 .toast {
   position: fixed;
@@ -717,22 +472,6 @@ body {
 .help-content hr { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
 .help-content strong { font-weight: 600; }
 
-.md-table {
-  border-collapse: collapse;
-  width: 100%;
-  margin: 8px 0;
-  font-size: .82rem;
-}
-.md-table th, .md-table td {
-  border: 1px solid var(--border);
-  padding: 5px 8px;
-  text-align: left;
-}
-.md-table th {
-  background: var(--primary-light);
-  font-weight: 600;
-}
-
 /* ── Settings Screen ── */
 .settings-group {
   background: var(--card);
@@ -786,18 +525,6 @@ body {
   font-size: .9rem;
 }
 
-.settings-danger-zone {
-  margin-top: 32px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-}
-
-.settings-danger-zone .hint {
-  margin-top: 8px;
-  font-size: 0.8rem;
-  color: var(--text-sec);
-}
-
 /* ── Update Banner ── */
 #update-banner {
   position: fixed;
@@ -831,101 +558,6 @@ body {
   margin-left: auto;
 }
 
-/* ── Checkbox Row ── */
-.checkbox-row {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: .85rem;
-  color: var(--text);
-  cursor: pointer;
-  padding: 3px 0;
-  vertical-align: middle;
-}
-
-.checkbox-row input[type="checkbox"] {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 14px;
-  height: 14px;
-  min-width: 14px;
-  min-height: 14px;
-  max-width: 14px;
-  max-height: 14px;
-  flex-shrink: 0;
-  border: 1.5px solid #999;
-  border-radius: 2px;
-  background: #fff;
-  position: relative;
-  cursor: pointer;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  vertical-align: middle;
-}
-.checkbox-row span {
-  line-height: 1;
-  vertical-align: middle;
-}
-.checkbox-row input[type="checkbox"]:checked {
-  background: var(--module-color);
-  border-color: var(--module-color);
-}
-.checkbox-row input[type="checkbox"]:checked::after {
-  content: '✓';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 10px;
-  font-weight: bold;
-  line-height: 1;
-  color: #fff;
-}
-/* Gelb-Modul: schwarzer Haken für bessere Sichtbarkeit */
-[data-theme="bel"] .checkbox-row input[type="checkbox"]:checked::after {
-  color: #000;
-}
-
-/* ── Checkbox Grid (2 Spalten) ── */
-.checkbox-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2px 10px;
-  margin: 6px 0;
-}
-
-/* ── Mode Toggle (HK im Raum / Neuer Raum) ── */
-.mode-toggle {
-  display: flex;
-  border: 2px solid var(--module-color);
-  border-radius: var(--radius);
-  overflow: hidden;
-  margin-bottom: 12px;
-}
-
-.mode-btn {
-  flex: 1;
-  padding: 8px 12px;
-  border: none;
-  background: #fff;
-  color: var(--module-color);
-  font-size: .88rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background .15s, color .15s;
-}
-
-.mode-btn + .mode-btn {
-  border-left: 2px solid var(--module-color);
-}
-
-.mode-btn.active {
-  background: var(--module-color);
-  color: var(--module-text);
-  font-weight: 600;
-}
-
 /* ── Send Recipients ── */
 .send-recipients {
   display: flex;
@@ -945,206 +577,6 @@ body {
   height: 14px;
   flex-shrink: 0;
   accent-color: var(--primary);
-}
-
-/* ── Sonstige-Hinweis ── */
-.sonstige-hinweis {
-  background: var(--module-color-light);
-  border: 2px solid var(--accent);
-  border-radius: var(--radius);
-  padding: 10px 14px;
-  margin: 10px 0;
-  font-weight: 700;
-  color: var(--accent);
-  text-align: center;
-  font-size: .95rem;
-}
-
-/* ── Photo Slot Add Button ── */
-.photo-slot-add {
-  border-style: dashed;
-  opacity: .6;
-}
-
-.photo-slot-add:active {
-  opacity: 1;
-}
-
-/* ── Inline Help Buttons ── */
-.btn-help-inline {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 1.5px solid var(--module-color);
-  background: var(--module-color-light);
-  color: var(--module-color);
-  font-size: .65rem;
-  font-weight: 700;
-  cursor: pointer;
-  margin-left: 6px;
-  vertical-align: middle;
-  padding: 0;
-  line-height: 1;
-}
-
-.btn-help-inline:active {
-  background: var(--module-color);
-  color: var(--module-text);
-}
-
-.btn-calc-inline {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 18px;
-  border-radius: 9px;
-  border: 1.5px solid var(--module-color);
-  background: var(--module-color-light);
-  color: var(--module-color);
-  font-size: .6rem;
-  font-weight: 700;
-  cursor: pointer;
-  margin-left: 4px;
-  vertical-align: middle;
-  padding: 0 5px;
-  line-height: 1;
-}
-.btn-calc-inline:active {
-  background: var(--module-color);
-  color: var(--module-text);
-}
-
-/* ── Help Image Modal ── */
-.help-image-modal {
-  background: var(--card);
-  border-radius: 12px;
-  width: 95vw;
-  max-width: 600px;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 8px 24px rgba(0,0,0,.25);
-  overflow: hidden;
-}
-
-.help-image-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  font-weight: 600;
-  font-size: .95rem;
-}
-
-.help-image-close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: var(--text-sec);
-  padding: 0 4px;
-  line-height: 1;
-}
-
-.help-image-body {
-  overflow: auto;
-  padding: 8px;
-  text-align: center;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-x pan-y;
-}
-
-.help-image-body img {
-  max-width: 100%;
-  height: auto;
-  cursor: zoom-in;
-  display: block;
-  margin: 0 auto;
-}
-
-.help-image-body img.zoomed {
-  max-width: none;
-  width: 200%;
-  cursor: zoom-out;
-}
-
-/* ── Modul-Auswahl Toggle (Projekt-Dialog) ── */
-.modul-toggle {
-  display: flex;
-  border: 2px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  margin-bottom: 16px;
-}
-
-.modul-toggle-btn {
-  flex: 1;
-  padding: 10px 8px;
-  border: none;
-  background: #fff;
-  color: var(--text);
-  font-size: .85rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background .15s, color .15s;
-  text-align: center;
-}
-
-.modul-toggle-btn + .modul-toggle-btn {
-  border-left: 2px solid var(--border);
-}
-
-.modul-toggle-btn.active-hk {
-  background: #66B32F;
-  color: #fff;
-  font-weight: 600;
-}
-
-.modul-toggle-btn.active-bel {
-  background: #FFCC00;
-  color: #000;
-  font-weight: 600;
-}
-
-.modul-toggle-btn.active-beides {
-  background: var(--primary);
-  color: #fff;
-  font-weight: 600;
-}
-
-/* ── Bel Steuerung Checkboxen (5 in einer Reihe) ── */
-.steuerung-grid {
-  display: grid;
-  grid-template-columns: repeat(5, auto);
-  gap: 2px 10px;
-  margin: 6px 0;
-}
-
-/* ── Bel Zustand Checkboxen (3 Spalten) ── */
-.zustand-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 2px 10px;
-  margin: 6px 0;
-}
-
-.raumdecke-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-}
-.raumdecke-row label { white-space: nowrap; }
-
-.zustand-grid-2col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px 10px;
-  margin: 6px 0;
 }
 
 /* ══════════════════════════════════════════════════════

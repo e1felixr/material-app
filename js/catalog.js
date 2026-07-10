@@ -76,7 +76,7 @@ const Catalog = (() => {
     if (typeof Basket !== 'undefined' && typeof Basket.addFromItem === 'function') {
       Basket.addFromItem(item);
     } else {
-      showToast('Korb folgt in Kürze');
+      showToast('Bestellung folgt in Kürze');
     }
   }
 
@@ -98,7 +98,7 @@ const Catalog = (() => {
           </div>
         </div>
         <div class="card-actions">
-          <button class="btn btn-module btn-sm btn-add-korb" data-item-idx="${idx}" type="button">+ In Korb</button>
+          <button class="btn btn-module btn-sm btn-add-korb" data-item-idx="${idx}" type="button">+ Bestellen</button>
         </div>
       </div>`;
   }

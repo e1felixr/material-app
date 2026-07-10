@@ -183,7 +183,7 @@ const Basket = (() => {
     await DB.addPosten(posten);
     closeDialog();
     await refreshBadge();
-    showToast(`"${material}" in den Korb gelegt.`);
+    showToast(`"${material}" zur Bestellung hinzugefügt.`);
     if (typeof _onSaved === 'function') _onSaved();
   }
 
@@ -213,7 +213,7 @@ const Basket = (() => {
   function addFromItem(item) {
     openDialog({
       mode: 'katalog-add',
-      title: 'In Korb legen',
+      title: 'Zur Bestellung hinzufügen',
       posten: {
         kategorie: item.kategorie,
         position: item.position,
@@ -254,7 +254,7 @@ const Basket = (() => {
   }
 
   async function removePosten(posten) {
-    const ok = confirm(`"${posten.material}" aus dem Korb entfernen?`);
+    const ok = confirm(`"${posten.material}" aus der Bestellung entfernen?`);
     if (!ok) return;
     await DB.deletePosten(posten.id);
     await refreshBadge();
@@ -312,7 +312,7 @@ const Basket = (() => {
       </div>`;
 
     if (posten.length === 0) {
-      containerEl.innerHTML = header + '<div class="empty-state"><div class="icon">&#128722;</div><p>Der Korb ist leer.</p></div>';
+      containerEl.innerHTML = header + '<div class="empty-state"><div class="icon">&#128722;</div><p>Die Bestellung ist leer.</p></div>';
     } else {
       containerEl.innerHTML = header + '<div id="korb-list">' + posten.map(postenRowHtml).join('') + '</div>';
     }
@@ -390,7 +390,7 @@ const Basket = (() => {
   async function confirmSend() {
     const posten = await DB.allPosten();
     if (posten.length === 0) {
-      showToast('Der Korb ist leer.');
+      showToast('Die Bestellung ist leer.');
       closeSendDialog();
       return;
     }
@@ -432,13 +432,13 @@ const Basket = (() => {
     closeSendDialog();
 
     setTimeout(async () => {
-      const ok = confirm('Korb jetzt leeren?');
+      const ok = confirm('Bestellung jetzt leeren?');
       if (ok) {
         await DB.clearKorb();
         await refreshBadge();
         const view = document.getElementById('view-korb');
         if (view && view.classList.contains('active')) renderInto(view);
-        showToast('Korb geleert.');
+        showToast('Bestellung geleert.');
       }
     }, 600);
   }
